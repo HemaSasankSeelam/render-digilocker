@@ -20,7 +20,7 @@ import subprocess
 from email.message import EmailMessage
 import smtplib
 from dotenv import load_dotenv
-import os
+import os,shutil
 
 load_dotenv()
 from digilocker import models
@@ -32,12 +32,21 @@ class DigiLockerAutomationUpdated:
         self.last_four_digits = "4325"
         
         chrome_options = Options()
-        chrome_options.add_argument("--headless")  # Essential for servers
+        chrome_options.add_argument("--headless")
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-dev-shm-usage")
+        chrome_options.add_argument("--disable-gpu")
+        chrome_options.add_argument("--disable-software-rasterizer")
+        chrome_options.add_argument("--window-size=1920,1080")
 
-        chrome_service = Service(executable_path=ChromeDriverManager().install())
-        self.driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
+        # Detect chrome binary location
+        chrome_path = shutil.which("google-chrome") or "/usr/bin/google-chrome"
+        chrome_options.binary_location = chrome_path
+
+        # Detect chromedriver location
+        driver_path = shutil.which("chromedriver") or "/usr/bin/chromedriver"
+        self.driver = webdriver.Chrome(service=Service(driver_path), options=chrome_options)
+
         self.url = "https://digilocker.meripehchaan.gov.in/signin/forgot_pin"
 
         self.driver.set_window_position(x=350,y=10)
