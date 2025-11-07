@@ -31,21 +31,28 @@ class DigiLockerAutomationUpdated:
         self.first_number = "9"
         self.last_four_digits = "4325"
         
+        # --- Configuration for Render.com ---
+        # Set paths to the binaries installed by apt-get
+        CHROME_PATH = '/usr/bin/chromium' 
+        CHROMEDRIVER_PATH = '/usr/bin/chromedriver' 
+        # ------------------------------------
+
         chrome_options = Options()
         chrome_options.add_argument("--headless")
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-dev-shm-usage")
-        chrome_options.add_argument("--disable-gpu")
-        chrome_options.add_argument("--disable-software-rasterizer")
-        chrome_options.add_argument("--window-size=1920,1080")
+        chrome_options.add_argument("--proxy-server=proxy.server:3128") # If you run into network errors
 
-        # Detect chrome binary location
-        chrome_path = shutil.which("google-chrome") or "/usr/bin/google-chrome"
-        chrome_options.binary_location = chrome_path
+        # CRUCIAL: Point the driver to the correct browser executable
+        chrome_options.binary_location = CHROME_PATH 
 
-        # Detect chromedriver location
-        driver_path = shutil.which("chromedriver") or "/usr/bin/chromedriver"
-        self.driver = webdriver.Chrome(service=Service(driver_path), options=chrome_options)
+        # Create the Service and Driver
+        chrome_service = Service(executable_path=CHROMEDRIVER_PATH)
+
+        self.driver = webdriver.Chrome(
+            service=chrome_service, 
+            options=chrome_options
+        )
 
         self.url = "https://digilocker.meripehchaan.gov.in/signin/forgot_pin"
 
