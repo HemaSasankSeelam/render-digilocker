@@ -3,9 +3,8 @@ set -o errexit
 
 STORAGE_DIR=/opt/render/project/.render
 
-# === 1. Install Chrome (cached) ===
+echo "=== Installing Google Chrome ==="
 if [[ ! -d $STORAGE_DIR/chrome ]]; then
-  echo "...Downloading Chrome"
   mkdir -p $STORAGE_DIR/chrome
   cd $STORAGE_DIR/chrome
   wget -P ./ https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
@@ -14,18 +13,15 @@ if [[ ! -d $STORAGE_DIR/chrome ]]; then
 else
   echo "...Using cached Chrome"
 fi
-
 export PATH="${PATH}:$STORAGE_DIR/chrome/opt/google/chrome"
 
-# === 2. Install matching ChromeDriver ===
-CHROME_VERSION=$($STORAGE_DIR/chrome/opt/google/chrome/google-chrome --version | grep -oE "[0-9]+\.[0-9]+\.[0-9]+")
-echo "Detected Chrome version: $CHROME_VERSION"
-CHROMEDRIVER_VERSION=$(curl -s "https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_$CHROME_VERSION")
-wget -q "https://storage.googleapis.com/chrome-for-testing-public/$CHROME_VERSION/linux64/chromedriver-linux64.zip"
-unzip chromedriver-linux64.zip
+echo "=== Installing ChromeDriver ==="
+LATEST=$(curl -sS https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json | grep -m1 -A4 "linux64" | grep "url" | head -1 | cut -d '"' -f 4)
+wget -q "$LATEST" -O chromedriver.zip
+unzip -o chromedriver.zip
 mv chromedriver-linux64/chromedriver /usr/local/bin/chromedriver
 chmod +x /usr/local/bin/chromedriver
-rm -rf chromedriver-linux64*
+rm -rf chromedriver* LICENSE.chromedriver
 
-# === 3. Install Python deps ===
+echo "=== Installing Python packages ==="
 pip install -r requirements.txt
