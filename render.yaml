@@ -2,16 +2,5 @@ services:
   - type: web
     name: selenium_app
     env: python
-    buildCommand: |
-      # 1. Install Dependencies for Chromium and the Driver
-      apt-get update
-      apt-get install -y chromium chromium-chromedriver libgtk2.0-0 libgtk-3-0 libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
-      
-      # 2. Install Python dependencies
-      pip install -r requirements.txt
-      
-      # 3. Create symbolic links (Optional, but ensures standard paths work)
-      ln -s /usr/lib/chromium-browser/chromedriver /usr/bin/chromedriver
-      ln -s /usr/bin/chromium-browser /usr/bin/google-chrome
-      
+    buildCommand: bash build.sh
     startCommand: gunicorn selenium_app.wsgi:application
